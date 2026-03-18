@@ -1,0 +1,76 @@
+{% extends 'base.html' %}
+{% block title %}Checkout — Webo{% endblock %}
+
+{% block content %}
+<div class="page-header">
+  <div class="container">
+    <h1 class="fw-bold mb-1" style="font-size:1.8rem;"><i class="bi bi-bag-check me-2"></i>Checkout</h1>
+    <p class="mb-0 opacity-75">Review your order before placing</p>
+  </div>
+</div>
+
+<div class="container">
+  <div class="row g-4 justify-content-center">
+    <div class="col-lg-7">
+
+      <div class="card p-4 mb-4">
+        <h5 class="fw-700 mb-3" style="font-weight:700;"><i class="bi bi-person-circle me-2" style="color:#6c63ff;"></i>Customer Details</h5>
+        <div class="row g-2">
+          <div class="col-6">
+            <span class="text-muted small">Name</span>
+            <p class="mb-0 fw-500">{{ user.get_full_name|default:user.username }}</p>
+          </div>
+          <div class="col-6">
+            <span class="text-muted small">Email</span>
+            <p class="mb-0 fw-500">{{ user.email }}</p>
+          </div>
+        </div>
+      </div>
+
+      <div class="card p-4">
+        <h5 class="fw-700 mb-3" style="font-weight:700;"><i class="bi bi-receipt me-2" style="color:#6c63ff;"></i>Order Items</h5>
+        {% for item in cart.items.all %}
+        <div class="d-flex justify-content-between align-items-center py-2 border-bottom">
+          <div>
+            <span class="fw-500">{{ item.product.title }}</span>
+            <span class="text-muted small ms-2">× {{ item.quantity }}</span>
+          </div>
+          <span class="fw-600">₹{{ item.get_subtotal }}</span>
+        </div>
+        {% endfor %}
+        <div class="d-flex justify-content-between fw-700 mt-3 pt-2" style="font-size:1.1rem;">
+          <span>Total</span>
+          <span style="color:#6c63ff;">₹{{ cart.get_total }}</span>
+        </div>
+      </div>
+
+    </div>
+
+    <div class="col-lg-4">
+      <div class="card p-4" style="position:sticky;top:80px;">
+        <h5 class="fw-700 mb-1" style="font-weight:700;">Place Order</h5>
+        <p class="text-muted small mb-3">By placing the order, you confirm all details are correct.</p>
+
+        <div class="d-flex justify-content-between mb-2">
+          <span class="text-muted">Items</span>
+          <span>{{ cart.get_item_count }}</span>
+        </div>
+        <div class="d-flex justify-content-between mb-3">
+          <span class="text-muted">Total</span>
+          <span class="fw-700" style="color:#6c63ff;">₹{{ cart.get_total }}</span>
+        </div>
+
+        <form method="post">
+          {% csrf_token %}
+          <button type="submit" class="btn btn-primary w-100 py-2">
+            <i class="bi bi-check-circle me-2"></i>Confirm Order
+          </button>
+        </form>
+        <a href="{% url 'cart:view' %}" class="btn btn-outline-secondary w-100 mt-2">
+          <i class="bi bi-arrow-left me-1"></i>Back to Cart
+        </a>
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}

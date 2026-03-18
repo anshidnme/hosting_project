@@ -1,0 +1,73 @@
+{% extends 'base.html' %}
+{% block title %}{{ action }} Product — Webo{% endblock %}
+
+{% block content %}
+<div class="container py-4" style="max-width:600px;">
+  <a href="{% url 'products:list' %}" class="btn btn-outline-secondary btn-sm mb-4">
+    <i class="bi bi-arrow-left me-1"></i>Back
+  </a>
+
+  <div class="card p-4">
+    <div class="mb-4">
+      <div style="width:44px;height:44px;background:linear-gradient(135deg,#6c63ff,#a78bfa);border-radius:12px;display:inline-flex;align-items:center;justify-content:center;margin-bottom:10px;">
+        <i class="bi bi-{% if action == 'Add' %}plus-lg{% else %}pencil{% endif %} text-white"></i>
+      </div>
+      <h3 style="font-weight:700;">{{ action }} Product</h3>
+      <p class="text-muted small mb-0">Fill in the details below</p>
+    </div>
+
+    <form method="post" enctype="multipart/form-data" novalidate>
+      {% csrf_token %}
+
+      <div class="mb-3">
+        <label class="form-label small fw-500">Product Title *</label>
+        {{ form.title }}
+        {% if form.title.errors %}<div class="text-danger small mt-1">{{ form.title.errors.0 }}</div>{% endif %}
+      </div>
+
+      <div class="mb-3">
+        <label class="form-label small fw-500">Description</label>
+        {{ form.description }}
+        {% if form.description.errors %}<div class="text-danger small mt-1">{{ form.description.errors.0 }}</div>{% endif %}
+      </div>
+
+      <div class="row">
+        <div class="col-6 mb-3">
+          <label class="form-label small fw-500">Price (₹) *</label>
+          {{ form.price }}
+          {% if form.price.errors %}<div class="text-danger small mt-1">{{ form.price.errors.0 }}</div>{% endif %}
+        </div>
+        <div class="col-6 mb-3">
+          <label class="form-label small fw-500">Stock</label>
+          {{ form.stock }}
+          {% if form.stock.errors %}<div class="text-danger small mt-1">{{ form.stock.errors.0 }}</div>{% endif %}
+        </div>
+      </div>
+
+      <div class="mb-3">
+        <label class="form-label small fw-500">Product Image</label>
+        {% if product.image %}
+          <div class="mb-2">
+            <img src="{{ product.image.url }}" style="height:80px;border-radius:8px;object-fit:cover;" alt="Current image">
+            <span class="text-muted small ms-2">Current image</span>
+          </div>
+        {% endif %}
+        {{ form.image }}
+        {% if form.image.errors %}<div class="text-danger small mt-1">{{ form.image.errors.0 }}</div>{% endif %}
+      </div>
+
+      <div class="mb-4 d-flex align-items-center gap-2">
+        {{ form.is_active }}
+        <label class="form-check-label small">Active (visible to users)</label>
+      </div>
+
+      <div class="d-flex gap-2">
+        <button type="submit" class="btn btn-primary flex-grow-1 py-2">
+          <i class="bi bi-check-lg me-1"></i>{{ action }} Product
+        </button>
+        <a href="{% url 'products:list' %}" class="btn btn-outline-secondary">Cancel</a>
+      </div>
+    </form>
+  </div>
+</div>
+{% endblock %}

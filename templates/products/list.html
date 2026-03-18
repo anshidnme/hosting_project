@@ -1,0 +1,87 @@
+{% extends 'base.html' %}
+{% block title %}Products — Webo{% endblock %}
+
+{% block extra_css %}
+<style>
+  .product-card { transition: transform .2s, box-shadow .2s; cursor: pointer; }
+  .product-card:hover { transform: translateY(-4px); box-shadow: 0 8px 30px rgba(108,99,255,0.15) !important; }
+  .product-img { height: 200px; object-fit: cover; border-radius: 12px 12px 0 0; background: #f0eeff; }
+  .product-img-placeholder { height: 200px; background: linear-gradient(135deg,#f0eeff,#e8e4ff); border-radius: 12px 12px 0 0;
+    display:flex; align-items:center; justify-content:center; }
+  .price-badge { background: linear-gradient(135deg,#6c63ff,#a78bfa); color:#fff; padding: 4px 12px;
+                 border-radius: 20px; font-weight: 600; font-size: 0.95rem; }
+  .empty-state { text-align:center; padding: 5rem 2rem; }
+  .empty-state i { font-size: 4rem; color: #d0caff; margin-bottom: 1rem; }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="page-header">
+  <div class="container d-flex justify-content-between align-items-center">
+    <div>
+      <h1 class="fw-bold mb-1" style="font-size:1.8rem;"><i class="bi bi-shop me-2"></i>Products</h1>
+      <p class="mb-0 opacity-75">{{ products.count }} item{{ products.count|pluralize }} available</p>
+    </div>
+    {% if user.is_authenticated %}
+    <a href="{% url 'products:add' %}" class="btn btn-light d-flex align-items-center gap-2">
+      <i class="bi bi-plus-lg"></i> Add Product
+    </a>
+    {% endif %}
+  </div>
+</div>
+
+<div class="container">
+  {% if products %}
+  <div class="row g-4">
+    {% for product in products %}
+    <div class="col-sm-6 col-md-4 col-lg-3">
+      <div class="card product-card h-100">
+        {% if product.image %}
+          <img src="{{ product.image.url }}" class="product-img w-100" alt="{{ product.title }}">
+        {% else %}
+          <div class="product-img-placeholder">
+            <i class="bi bi-image fs-1" style="color:#b0a8e8;"></i>
+          </div>
+        {% endif %}
+        <div class="card-body d-flex flex-column p-3">
+          <h6 class="fw-600 mb-1" style="font-weight:600;">{{ product.title }}</h6>
+          <p class="text-muted small mb-2 flex-grow-1">{{ product.description|truncatechars:70 }}</p>
+          <div class="d-flex justify-content-between align-items-center mb-2">
+            <span class="price-badge">₹{{ product.price }}</span>
+            <span class="text-muted small">Stock: {{ product.stock }}</span>
+          </div>
+          <div class="d-flex gap-2">
+            <a href="{% url 'cart:add' product.pk %}" class="btn btn-primary btn-sm flex-grow-1">
+              <i class="bi bi-cart-plus me-1"></i>Add to Cart
+            </a>
+            <a href="{% url 'products:detail' product.pk %}" class="btn btn-outline-secondary btn-sm">
+              <i class="bi bi-eye"></i>
+            </a>
+          </div>
+          {% if user == product.created_by or user.is_staff %}
+          <div class="d-flex gap-2 mt-2">
+            <a href="{% url 'products:edit' product.pk %}" class="btn btn-outline-primary btn-sm flex-grow-1">
+              <i class="bi bi-pencil me-1"></i>Edit
+            </a>
+            <a href="{% url 'products:delete' product.pk %}" class="btn btn-outline-danger btn-sm">
+              <i class="bi bi-trash"></i>
+            </a>
+          </div>
+          {% endif %}
+        </div>
+      </div>
+    </div>
+    {% endfor %}
+  </div>
+  {% else %}
+  <div class="empty-state">
+    <i class="bi bi-bag-x d-block"></i>
+    <h4 class="fw-600">No products yet</h4>
+    <p class="text-muted">Be the first to add a product!</p>
+    <a href="{% url 'products:add' %}" class="btn btn-primary px-4">
+      <i class="bi bi-plus-lg me-2"></i>Add First Product
+    </a>
+  </div>
+  {% endif %}
+</div>
+{% endblock %}

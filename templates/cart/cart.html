@@ -1,0 +1,95 @@
+{% extends 'base.html' %}
+{% block title %}Your Cart — Webo{% endblock %}
+
+{% block extra_css %}
+<style>
+  .cart-img { width:70px;height:70px;object-fit:cover;border-radius:10px;background:#f0eeff; }
+  .cart-img-placeholder { width:70px;height:70px;border-radius:10px;background:linear-gradient(135deg,#f0eeff,#e8e4ff);
+    display:flex;align-items:center;justify-content:center; }
+  .qty-btn { width:30px;height:30px;border-radius:8px;border:1px solid #e0e0e0;background:#f8f9fa;
+    display:inline-flex;align-items:center;justify-content:center;cursor:pointer;font-size:1rem;line-height:1; }
+  .qty-btn:hover { background:#6c63ff;color:#fff;border-color:#6c63ff; }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="page-header">
+  <div class="container">
+    <h1 class="fw-bold mb-1" style="font-size:1.8rem;"><i class="bi bi-cart3 me-2"></i>Your Cart</h1>
+    <p class="mb-0 opacity-75">{{ cart.get_item_count }} item{{ cart.get_item_count|pluralize }}</p>
+  </div>
+</div>
+
+<div class="container">
+  {% if cart.items.all %}
+  <div class="row g-4">
+    <div class="col-lg-8">
+      {% for item in cart.items.all %}
+      <div class="card mb-3 p-3">
+        <div class="d-flex align-items-center gap-3">
+          {% if item.product.image %}
+            <img src="{{ item.product.image.url }}" class="cart-img" alt="{{ item.product.title }}">
+          {% else %}
+            <div class="cart-img-placeholder"><i class="bi bi-image" style="color:#b0a8e8;font-size:1.5rem;"></i></div>
+          {% endif %}
+
+          <div class="flex-grow-1">
+            <h6 class="mb-0 fw-600" style="font-weight:600;">{{ item.product.title }}</h6>
+            <span style="color:#6c63ff;font-weight:600;">₹{{ item.product.price }}</span>
+          </div>
+
+          <div class="d-flex align-items-center gap-2">
+            <form method="post" action="{% url 'cart:update' item.pk %}">
+              {% csrf_token %}
+              <div class="d-flex align-items-center gap-1">
+                <button type="submit" name="quantity" value="{{ item.quantity|add:'-1' }}" class="qty-btn">−</button>
+                <span class="px-2 fw-600" style="min-width:28px;text-align:center;">{{ item.quantity }}</span>
+                <button type="submit" name="quantity" value="{{ item.quantity|add:'1' }}" class="qty-btn">+</button>
+              </div>
+            </form>
+            <span class="text-muted ms-2 fw-600">₹{{ item.get_subtotal }}</span>
+            <a href="{% url 'cart:remove' item.pk %}" class="btn btn-sm btn-outline-danger ms-2">
+              <i class="bi bi-trash"></i>
+            </a>
+          </div>
+        </div>
+      </div>
+      {% endfor %}
+    </div>
+
+    <div class="col-lg-4">
+      <div class="card p-4" style="position:sticky;top:80px;">
+        <h5 class="fw-700 mb-3" style="font-weight:700;">Order Summary</h5>
+        {% for item in cart.items.all %}
+        <div class="d-flex justify-content-between mb-2 small">
+          <span class="text-muted">{{ item.product.title }} × {{ item.quantity }}</span>
+          <span>₹{{ item.get_subtotal }}</span>
+        </div>
+        {% endfor %}
+        <hr>
+        <div class="d-flex justify-content-between fw-700 mb-4">
+          <span>Total</span>
+          <span style="color:#6c63ff;font-size:1.2rem;">₹{{ cart.get_total }}</span>
+        </div>
+        <a href="{% url 'cart:checkout' %}" class="btn btn-primary w-100 py-2">
+          <i class="bi bi-lock me-2"></i>Proceed to Checkout
+        </a>
+        <a href="{% url 'products:list' %}" class="btn btn-outline-secondary w-100 mt-2">
+          <i class="bi bi-arrow-left me-1"></i>Continue Shopping
+        </a>
+      </div>
+    </div>
+  </div>
+
+  {% else %}
+  <div class="text-center py-5">
+    <i class="bi bi-cart-x d-block" style="font-size:4rem;color:#d0caff;margin-bottom:1rem;"></i>
+    <h4 style="font-weight:700;">Your cart is empty</h4>
+    <p class="text-muted">Add some products to get started!</p>
+    <a href="{% url 'products:list' %}" class="btn btn-primary px-4 mt-2">
+      <i class="bi bi-shop me-2"></i>Browse Products
+    </a>
+  </div>
+  {% endif %}
+</div>
+{% endblock %}
